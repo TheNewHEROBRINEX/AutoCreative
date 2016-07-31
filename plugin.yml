@@ -1,0 +1,17 @@
+name: AutoCreative
+author: TheNewHEROBRINE
+version: 1.1.2
+main: TheNewHEROBRINE\AutoCreative\Main
+api: 2.0.0
+
+commands:
+ survival:
+  aliases: ["s"]
+ creative:
+  aliases: ["c"]
+
+permissions:
+ autocreative:
+  children:
+   autocreative.exempt:
+    default: op
