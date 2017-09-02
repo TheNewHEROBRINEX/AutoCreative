@@ -34,7 +34,7 @@ class Main extends PluginBase implements Listener{
 
     public function onPlayerJoin(PlayerJoinEvent $event) {
         $player = $event->getPlayer();
-        if ($player->getLevel() != $this->creativeWorld && !$player->hasPermission("autocreative.exempt")){
+        if ($player->getLevel()->getName() != $this->creativeWorld && !$player->hasPermission("autocreative.exempt")){
             $player->setGamemode(0);
         }
     }
