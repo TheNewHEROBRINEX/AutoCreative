@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace TheNewHEROBRINE\AutoCreative;
 
@@ -10,32 +11,52 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
 
 class Main extends PluginBase implements Listener{
+
+    /** @var Config $config */
     private $config;
-    public $creativeWorld;
-    
+
     public function onEnable(){
-        @mkdir($this->getDataFolder());
+        if (!is_dir($this->getDataFolder())) {
+            mkdir($this->getDataFolder());
+        }
         $this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML, ["Creative world" => "Creative"]);
-        $this->creativeWorld = $this->getConfig()->get("Creative world");
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
-        $this->getServer()->getCommandMap()->getCommand("survival")->setExecutor(new Commands($this->creativeWorld));
-        $this->getServer()->getCommandMap()->getCommand("creative")->setExecutor(new Commands($this->creativeWorld));
+        #$this->getServer()->getCommandMap()->getCommand("survival")->setExecutor(new Commands($this->creativeWorld));
+        #$this->getServer()->getCommandMap()->getCommand("creative")->setExecutor(new Commands($this->creativeWorld));
     }
 
+    /**
+     * @param EntityLevelChangeEvent $event
+     */
     public function onLevelChange(EntityLevelChangeEvent $event) {
         $player = $event->getEntity();
-        if ($player instanceof Player && !$player->hasPermission("autocreative.exempt")) {
-            if ($event->getTarget()->getName() == $this->creativeWorld)
-                $player->setGamemode(1);
-            else
-                $player->setGamemode(0);
+        if ($player instanceof Player){
+            $this->setGamemode($player, false, $event->getTarget()->getFolderName());
         }
     }
 
+    /**
+     * @param PlayerJoinEvent $event
+     */
     public function onPlayerJoin(PlayerJoinEvent $event) {
-        $player = $event->getPlayer();
-        if ($player->getLevel()->getName() != $this->creativeWorld && !$player->hasPermission("autocreative.exempt")){
-            $player->setGamemode(0);
+        $this->setGamemode($event->getPlayer());
+    }
+
+    /**
+     * @param Player $player
+     * @param bool $force
+     * @param null|string $level
+     */
+    public function setGamemode(Player $player, bool $force = false, ?string $level = null): void {
+        if ($force or !$player->hasPermission("autocreative.exempt")){
+            $player->setGamemode($level ?? $player->getLevel() === $this->getCreativeWorld() ? Player::CREATIVE : Player::SURVIVAL);
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getCreativeWorld(): string {
+        return (string)$this->getConfig()->get("Creative world", "Creative");
     }
 }
