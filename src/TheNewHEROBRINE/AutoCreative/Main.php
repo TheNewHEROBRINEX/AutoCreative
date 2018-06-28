@@ -49,7 +49,7 @@ class Main extends PluginBase implements Listener{
      */
     public function setGamemode(Player $player, bool $force = false, ?string $level = null): void {
         if ($force or !$player->hasPermission("autocreative.exempt")){
-            $player->setGamemode($level ?? $player->getLevel() === $this->getCreativeWorld() ? Player::CREATIVE : Player::SURVIVAL);
+            $player->setGamemode(($level ?? $player->getLevel()) === $this->getCreativeWorld() ? Player::CREATIVE : Player::SURVIVAL);
         }
     }
 
